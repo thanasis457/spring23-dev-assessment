@@ -94,35 +94,58 @@ router.get(
     if (!errors.isEmpty()) {
       return res.status(500).json(errors);
     }
-    if (req.query?.lastIndex)
-      req.query.lastIndex = ObjectId(req.query.lastIndex);
-    if (req.query?.limit) {
-      if (req.query.limit < 1) req.query.limit = 20;
-      else if (req.query.limit > 100) req.query.limit = 100;
-    }
-    console.log(req.query);
+    formatPagination(req.query);
     Controllers.getUsers(req.query)
       .then((users) => res.json(users))
       .catch((err) => {
-        res.status(500).json();
+        res.status(500).json(err);
       });
   }
 );
 
-router.get("/api/admin/animals", (req, res) => {
-  Controllers.getAnimals()
-    .then((users) => res.json(users))
-    .catch((err) => {
-      res.status(500).json();
-    });
-});
+router.get(
+  "/api/admin/animals",
+  query("limit").optional().isNumeric().toInt(),
+  query("lastIndex").optional().isMongoId(),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json(errors);
+    }
+    formatPagination(req.query);
+    Controllers.getAnimals(req.query)
+      .then((animals) => res.json(animals))
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json(err);
+      });
+  }
+);
 
-router.get("/api/admin/training", (req, res) => {
-  Controllers.getTraining()
-    .then((users) => res.json(users))
-    .catch((err) => {
-      res.status(500).json();
-    });
-});
+router.get(
+  "/api/admin/training",
+  query("limit").optional().isNumeric().toInt(),
+  query("lastIndex").optional().isMongoId(),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json(errors);
+    }
+    formatPagination(req.query);
+    Controllers.getTraining(req.query)
+      .then((training) => res.json(training))
+      .catch((err) => {
+        res.status(500).json(err);
+      });
+  }
+);
+
+function formatPagination(query) {
+  if (query?.lastIndex) query.lastIndex = ObjectId(query.lastIndex);
+  if (query?.limit) {
+    if (query.limit < 1) query.limit = 20;
+    else if (query.limit > 100) query.limit = 100;
+  }
+}
 
 export default router;

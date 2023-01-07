@@ -21,8 +21,10 @@ async function addTraining(newTraining) {
   await dbo.getDb().collection("Training").insertOne(newTraining);
 }
 
-async function getUsers({ limit = 20, lastIndex = ObjectID("000000000000") }) {
-  console.log(limit, lastIndex);
+async function getUsers({
+  limit = 20,
+  lastIndex = ObjectID("0".repeat(24)),
+} = {}) {
   const users = await dbo
     .getDb()
     .collection("Users")
@@ -34,13 +36,31 @@ async function getUsers({ limit = 20, lastIndex = ObjectID("000000000000") }) {
   return users;
 }
 
-async function getAnimals() {
-  const animals = await dbo.getDb().collection("Animals").find({}).toArray();
+async function getAnimals({
+  limit = 20,
+  lastIndex = ObjectID("0".repeat(24)),
+} = {}) {
+  const animals = await dbo
+    .getDb()
+    .collection("Animals")
+    .find({ _id: { $gt: lastIndex } })
+    .sort({ _id: 1 })
+    .limit(limit)
+    .toArray();
   return animals;
 }
 
-async function getTraining() {
-  const training = await dbo.getDb().collection("Training").find({}).toArray();
+async function getTraining({
+  limit = 20,
+  lastIndex = ObjectID("0".repeat(24)),
+} = {}) {
+  const training = await dbo
+    .getDb()
+    .collection("Training")
+    .find({ _id: { $gt: lastIndex } })
+    .sort({ _id: 1 })
+    .limit(limit)
+    .toArray();
   return training;
 }
 
