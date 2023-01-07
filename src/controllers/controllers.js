@@ -1,7 +1,12 @@
+// Controllers assume data is formatted correctly (formatted by the caller/route file)
 import { ObjectID } from "bson";
 import dbo from "../mongo/connection.js";
+import bcrypt from "bcrypt";
 
 async function addUser(newUser) {
+  const saltRounds = 10;
+  const hash = await bcrypt.hash(newUser.password, saltRounds);
+  newUser.password = hash;
   await dbo.getDb().collection("Users").insertOne(newUser);
 }
 
