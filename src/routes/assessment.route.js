@@ -85,4 +85,8 @@ router.post(
   }
 );
 
+router.get("/api/admin/users", (req, res) => {
+  Controllers.getUsers().then((users) => res.json(users));
+});
+
 export default router;

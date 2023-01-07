@@ -21,8 +21,20 @@ async function addTraining(newTraining) {
   await dbo.getDb().collection("Training").insertOne(newTraining);
 }
 
+async function getUsers() {
+  const users = await dbo
+    .getDb()
+    .collection("Users")
+    .find({})
+    .project({ password: false})
+    .toArray();
+  console.log(users);
+  return users;
+}
+
 export default {
   addUser,
   addAnimal,
   addTraining,
+  getUsers,
 };
