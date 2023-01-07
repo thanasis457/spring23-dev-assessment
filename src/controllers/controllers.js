@@ -32,9 +32,20 @@ async function getUsers() {
   return users;
 }
 
+async function getAnimals() {
+  const animals = await dbo
+    .getDb()
+    .collection("Animals")
+    .find({})
+    .toArray();
+  console.log(animals);
+  return animals;
+}
+
 export default {
   addUser,
   addAnimal,
   addTraining,
   getUsers,
+  getAnimals
 };

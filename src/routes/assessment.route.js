@@ -89,4 +89,8 @@ router.get("/api/admin/users", (req, res) => {
   Controllers.getUsers().then((users) => res.json(users));
 });
 
+router.get("/api/admin/animals", (req, res) => {
+  Controllers.getAnimals().then((users) => res.json(users));
+});
+
 export default router;
