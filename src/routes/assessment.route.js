@@ -1,7 +1,7 @@
 import express, { json } from "express";
 import { ObjectId } from "mongodb";
 import Controllers from "../controllers/controllers.js";
-import { body, validationResult } from "express-validator";
+import { body, query, validationResult } from "express-validator";
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -26,10 +26,10 @@ router.post(
     }
     Controllers.addUser(req.body)
       .then(() => {
-        res.status(200).send();
+        res.status(200).json();
       })
       .catch((err) => {
-        res.status(500).send();
+        res.status(500).json();
       });
   }
 );
@@ -48,10 +48,10 @@ router.post(
     }
     Controllers.addAnimal({ ...req.body, owner: ObjectId(req.body.owner) })
       .then(() => {
-        res.status(200).send();
+        res.status(200).json();
       })
       .catch((err) => {
-        res.status(500).send();
+        res.status(500).json();
       });
   }
 );
@@ -79,9 +79,72 @@ router.post(
         res.status(200).send();
       })
       .catch((err) => {
-        res.status(500).send();
+        if (err === 400) res.status(400).json();
+        else res.status(500).json({ error: err });
       });
   }
 );
+
+router.get(
+  "/api/admin/users",
+  query("limit").optional().isNumeric().toInt(),
+  query("lastIndex").optional().isMongoId(),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json(errors);
+    }
+    formatPagination(req.query);
+    Controllers.getUsers(req.query)
+      .then((users) => res.json(users))
+      .catch((err) => {
+        res.status(500).json(err);
+      });
+  }
+);
+
+router.get(
+  "/api/admin/animals",
+  query("limit").optional().isNumeric().toInt(),
+  query("lastIndex").optional().isMongoId(),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json(errors);
+    }
+    formatPagination(req.query);
+    Controllers.getAnimals(req.query)
+      .then((animals) => res.json(animals))
+      .catch((err) => {
+        res.status(500).json(err);
+      });
+  }
+);
+
+router.get(
+  "/api/admin/training",
+  query("limit").optional().isNumeric().toInt(),
+  query("lastIndex").optional().isMongoId(),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json(errors);
+    }
+    formatPagination(req.query);
+    Controllers.getTraining(req.query)
+      .then((training) => res.json(training))
+      .catch((err) => {
+        res.status(500).json(err);
+      });
+  }
+);
+
+function formatPagination(query) {
+  if (query?.lastIndex) query.lastIndex = ObjectId(query.lastIndex);
+  if (query?.limit) {
+    if (query.limit < 1) query.limit = 20;
+    else if (query.limit > 100) query.limit = 100;
+  }
+}
 
 export default router;
