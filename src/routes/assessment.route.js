@@ -116,7 +116,6 @@ router.get(
     Controllers.getAnimals(req.query)
       .then((animals) => res.json(animals))
       .catch((err) => {
-        console.log(err);
         res.status(500).json(err);
       });
   }

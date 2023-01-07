@@ -13,8 +13,6 @@ async function addTraining(newTraining) {
   const validOwner = (
     await dbo.getDb().collection("Animals").findOne({ _id: newTraining.animal })
   ).owner;
-  console.log(validOwner);
-  console.log(newTraining.user);
   if (!validOwner.equals(newTraining.user)) {
     throw 400;
   }
