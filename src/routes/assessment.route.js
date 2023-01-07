@@ -1,7 +1,7 @@
 import express, { json } from "express";
 import { ObjectId } from "mongodb";
 import Controllers from "../controllers/controllers.js";
-import { body, validationResult } from "express-validator";
+import { body, query, validationResult } from "express-validator";
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -85,13 +85,29 @@ router.post(
   }
 );
 
-router.get("/api/admin/users", (req, res) => {
-  Controllers.getUsers()
-    .then((users) => res.json(users))
-    .catch((err) => {
-      res.status(500).json();
-    });
-});
+router.get(
+  "/api/admin/users",
+  query("limit").optional().isNumeric().toInt(),
+  query("lastIndex").optional().isMongoId(),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json(errors);
+    }
+    if (req.query?.lastIndex)
+      req.query.lastIndex = ObjectId(req.query.lastIndex);
+    if (req.query?.limit) {
+      if (req.query.limit < 1) req.query.limit = 20;
+      else if (req.query.limit > 100) req.query.limit = 100;
+    }
+    console.log(req.query);
+    Controllers.getUsers(req.query)
+      .then((users) => res.json(users))
+      .catch((err) => {
+        res.status(500).json();
+      });
+  }
+);
 
 router.get("/api/admin/animals", (req, res) => {
   Controllers.getAnimals()

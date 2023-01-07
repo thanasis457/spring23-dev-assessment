@@ -21,22 +21,21 @@ async function addTraining(newTraining) {
   await dbo.getDb().collection("Training").insertOne(newTraining);
 }
 
-async function getUsers() {
+async function getUsers({ limit = 20, lastIndex = ObjectID("000000000000") }) {
+  console.log(limit, lastIndex);
   const users = await dbo
     .getDb()
     .collection("Users")
-    .find({})
-    .project({ password: false})
+    .find({ _id: { $gt: lastIndex } })
+    .sort({ _id: 1 })
+    .limit(limit)
+    .project({ password: false })
     .toArray();
   return users;
 }
 
 async function getAnimals() {
-  const animals = await dbo
-    .getDb()
-    .collection("Animals")
-    .find({})
-    .toArray();
+  const animals = await dbo.getDb().collection("Animals").find({}).toArray();
   return animals;
 }
 
@@ -51,5 +50,5 @@ export default {
   addTraining,
   getUsers,
   getAnimals,
-  getTraining
+  getTraining,
 };
