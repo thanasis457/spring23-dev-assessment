@@ -16,7 +16,7 @@ router.post(
   "/api/user",
   body("firstName").isString(),
   body("lastName").isString(),
-  body("email").isString(),
+  body("email").isEmail(),
   body("password").isString(),
   body("profilePicture").optional().isString(),
   (req, res) => {
@@ -69,7 +69,7 @@ router.post(
   (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json(errors);
     }
     Controllers.addTraining({
       ...req.body,
@@ -99,7 +99,7 @@ router.get(
     Controllers.getUsers(req.query)
       .then((users) => res.json(users))
       .catch((err) => {
-        res.status(500).json(err);
+        res.status(500).json({ error: err });
       });
   }
 );
@@ -117,7 +117,7 @@ router.get(
     Controllers.getAnimals(req.query)
       .then((animals) => res.json(animals))
       .catch((err) => {
-        res.status(500).json(err);
+        res.status(500).json({ error: err });
       });
   }
 );
@@ -135,7 +135,44 @@ router.get(
     Controllers.getTraining(req.query)
       .then((training) => res.json(training))
       .catch((err) => {
-        res.status(500).json(err);
+        res.status(500).json({ error: err });
+      });
+  }
+);
+
+router.get(
+  "/api/admin/training",
+  query("limit").optional().isNumeric().toInt(),
+  query("lastIndex").optional().isMongoId(),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json(errors);
+    }
+    formatPagination(req.query);
+    Controllers.getTraining(req.query)
+      .then((training) => res.json(training))
+      .catch((err) => {
+        res.status(500).json({ error: err });
+      });
+  }
+);
+
+router.post(
+  "/api/user/login",
+  body("email").isEmail(),
+  body("password").exists(),
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json(errors);
+    }
+    Controllers.validateEmailPassword(req.body.email, req.body.password)
+      .then(() => {
+        res.status(200).json({ Success: "Passwords match!" });
+      })
+      .catch((err) => {
+        res.status(403).json({ error: err });
       });
   }
 );

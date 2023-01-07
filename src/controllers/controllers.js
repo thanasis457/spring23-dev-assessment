@@ -18,7 +18,7 @@ async function addTraining(newTraining) {
   const validOwner = (
     await dbo.getDb().collection("Animals").findOne({ _id: newTraining.animal })
   ).owner;
-  if (!validOwner.equals(newTraining.user)) {
+  if (!validOwner || !validOwner.equals(newTraining.user)) {
     throw 400;
   }
   await dbo.getDb().collection("Training").insertOne(newTraining);
@@ -67,6 +67,22 @@ async function getTraining({
   return training;
 }
 
+async function validateEmailPassword(email, password) {
+  const user = await dbo
+    .getDb()
+    .collection("Users")
+    .findOne({ email: email });
+    
+  if(!user) throw "Email not matched to any user";
+  console.log(user);
+  const res = await bcrypt.compare(password, user.password);
+  console.log(res);
+  if (res) {
+    return;
+  }
+  throw "Email and password do not match";
+}
+
 export default {
   addUser,
   addAnimal,
@@ -74,4 +90,5 @@ export default {
   getUsers,
   getAnimals,
   getTraining,
+  validateEmailPassword,
 };
