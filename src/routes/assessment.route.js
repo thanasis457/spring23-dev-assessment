@@ -86,15 +86,27 @@ router.post(
 );
 
 router.get("/api/admin/users", (req, res) => {
-  Controllers.getUsers().then((users) => res.json(users));
+  Controllers.getUsers()
+    .then((users) => res.json(users))
+    .catch((err) => {
+      res.status(500).json();
+    });
 });
 
 router.get("/api/admin/animals", (req, res) => {
-  Controllers.getAnimals().then((users) => res.json(users));
+  Controllers.getAnimals()
+    .then((users) => res.json(users))
+    .catch((err) => {
+      res.status(500).json();
+    });
 });
 
 router.get("/api/admin/training", (req, res) => {
-  Controllers.getTraining().then((users) => res.json(users));
+  Controllers.getTraining()
+    .then((users) => res.json(users))
+    .catch((err) => {
+      res.status(500).json();
+    });
 });
 
 export default router;
