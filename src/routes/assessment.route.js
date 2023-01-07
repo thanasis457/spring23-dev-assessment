@@ -26,10 +26,10 @@ router.post(
     }
     Controllers.addUser(req.body)
       .then(() => {
-        res.status(200).send();
+        res.status(200).json();
       })
       .catch((err) => {
-        res.status(500).send();
+        res.status(500).json();
       });
   }
 );
@@ -48,10 +48,10 @@ router.post(
     }
     Controllers.addAnimal({ ...req.body, owner: ObjectId(req.body.owner) })
       .then(() => {
-        res.status(200).send();
+        res.status(200).json();
       })
       .catch((err) => {
-        res.status(500).send();
+        res.status(500).json();
       });
   }
 );
@@ -79,7 +79,8 @@ router.post(
         res.status(200).send();
       })
       .catch((err) => {
-        res.status(500).send();
+        if (err === 400) res.status(400).json();
+        else res.status(500).json({ error: err });
       });
   }
 );
