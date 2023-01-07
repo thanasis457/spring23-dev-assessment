@@ -93,4 +93,8 @@ router.get("/api/admin/animals", (req, res) => {
   Controllers.getAnimals().then((users) => res.json(users));
 });
 
+router.get("/api/admin/training", (req, res) => {
+  Controllers.getTraining().then((users) => res.json(users));
+});
+
 export default router;

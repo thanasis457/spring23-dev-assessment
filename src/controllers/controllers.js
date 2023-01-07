@@ -28,7 +28,6 @@ async function getUsers() {
     .find({})
     .project({ password: false})
     .toArray();
-  console.log(users);
   return users;
 }
 
@@ -38,8 +37,12 @@ async function getAnimals() {
     .collection("Animals")
     .find({})
     .toArray();
-  console.log(animals);
   return animals;
+}
+
+async function getTraining() {
+  const training = await dbo.getDb().collection("Training").find({}).toArray();
+  return training;
 }
 
 export default {
@@ -47,5 +50,6 @@ export default {
   addAnimal,
   addTraining,
   getUsers,
-  getAnimals
+  getAnimals,
+  getTraining
 };
