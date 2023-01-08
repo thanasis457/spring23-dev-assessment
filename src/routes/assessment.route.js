@@ -210,6 +210,40 @@ router.post(
   }
 );
 
+router.post(
+  "/api/file/upload",
+  Controllers.AuthMiddleware,
+  Controllers.multerMiddleware,
+  body("type").exists(),
+  body("id").isMongoId(),
+  Controllers.multerMiddlewareFilter,
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json(errors);
+    }
+
+    if (
+      req.body.type !== "UserProfile" &&
+      req.body.type !== "AnimalProfile" &&
+      req.body.type != "TrainingVideo"
+    ) {
+      return res.status(500).json({
+        error: `No file type specified. Choose 'UserProfile', 'AnimalProfile', or 'TrainingVideo'`,
+      });
+    }
+
+    Controllers.uploadHandler(req.file, ObjectId(req.body.id), req.body.type)
+      .then(() => {
+        res.status(200).json({ Success: "File uploaded" });
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(500).json({ error: err });
+      });
+  }
+);
+
 function formatPagination(query) {
   if (query?.lastIndex) query.lastIndex = ObjectId(query.lastIndex);
   if (query?.limit) {
