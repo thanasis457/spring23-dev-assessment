@@ -4,8 +4,6 @@ import Controllers from "../controllers/controllers.js";
 import { body, query, validationResult } from "express-validator";
 
 const router = express.Router();
-//Arbitrary secret. In normal seeting should be stored in environment variables for security
-export const secret = "K:Bfb;sbJU%^jhbd&(gdbhkdhkfv fiu&*7df8s9g";
 
 router.get("/", (req, res) => {
   res.json({ Hello: "World", Version: 2 });
@@ -33,7 +31,7 @@ router.post(
       })
       .catch((err) => {
         console.log(err);
-        res.status(500).json(err);
+        res.status(500).json({ error: err });
       });
   }
 );
@@ -199,7 +197,7 @@ router.post(
         //Email and Password match
         return Controllers.issueJWT(
           { _id: user._id, email: user.email },
-          secret
+          process.env.JWT_STRING
         );
       })
       .then((token) => {
@@ -208,6 +206,40 @@ router.post(
       .catch((err) => {
         console.log(err);
         res.status(403).json({ error: err });
+      });
+  }
+);
+
+router.post(
+  "/api/file/upload",
+  Controllers.AuthMiddleware,
+  Controllers.multerMiddleware,
+  body("type").exists(),
+  body("id").isMongoId(),
+  Controllers.multerMiddlewareFilter,
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(500).json(errors);
+    }
+
+    if (
+      req.body.type !== "UserProfile" &&
+      req.body.type !== "AnimalProfile" &&
+      req.body.type != "TrainingVideo"
+    ) {
+      return res.status(500).json({
+        error: `No file type specified. Choose 'UserProfile', 'AnimalProfile', or 'TrainingVideo'`,
+      });
+    }
+
+    Controllers.uploadHandler(req.file, ObjectId(req.body.id), req.body.type)
+      .then(() => {
+        res.status(200).json({ Success: "File uploaded" });
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(500).json({ error: err });
       });
   }
 );
