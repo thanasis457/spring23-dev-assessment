@@ -1,88 +1,127 @@
+# Updated README for my implementation
 ## Introduction
 
-Hello, thank you for showing your interest in Bits of Good! This semester, we are focusing our recruitment on the practical skills of developers through this assessment! We hope you enjoy the task and if you have any questions or if any part is ambiguous, please file a GitHub issue on the repository with whichever task number (i.e. 0,1,2,3, etc.) you are working on!
+Hi and thanks for looking at my repo! I have tried to keep things simple and pretty self explanatory but keep in mind just a few things:
 
-While this assessment comes in various levels (Setup --> Expert), we do not expect you to be able to complete all of the levels; we just want to see your thought process and how you write and organize code. Additionally, we have provided a sample Express.js boilerplate but feel free to use a different framework or customize this repository to your needs (i.e. install any extra libraries, etc. you need). Our only requirement is that you use Javascript/Typescript with a NoSQL database (i.e. Firestore, MongoDB, etc.).
+- I have provided my dotenv file(configured) which I wouldn't normally do but for the sake of simplicity I have provided some credentials that will make the file upload functionality work out of the box. Make sure to change DATABASE_URI (to point to your local mongodb instance) and JWT_STRING(to whatever secret key you want). 
+- I have provided a keys.json file with the credentials for an account to my GCP storage account. Again, I would never commit something like this to a public repo but for the sake of simplicity I am providing credentials to a temporary account with access to a free version of GCP Storage so that even if the key is exposed there won't be any actual harm.
 
-Because this assessment is very open ended, there are many ways to do the tasks so for most of the tasks, there is no right or wrong way to do things.
+So you should just run:
+`npm i` and `npm run start`, assuming the `.env` file is pointing to your instance of MongoDB, and everything should running.
+## Levels Completed
 
-To submit your project, please commit your code to Github (preferred) or another version control platform and share a link to your repository in our application.
+I completed all Levels and have made minor adjustments/assumptions wherever I felt it made sense.  
 
-**_Once again, we would like to emphasize this take home assessment is designed to be challenging and we do not expect you to be able to do the entire thing._**
+## Package versions
 
-## Context
+Everything was developed and tested using:
+- MongoDB v6.0 - used locally (i.e. without Atlas or other cloud solutions)
+- NodeJS v16.14.2
 
-For this take home assessment, we are building an animal training management app! Our job for the app, is to build out backend functionality to manage different users, animals, and training logs. Schemas for these data models can be found in `Schemas.md`
+If something doesn't work, please try using the versions above.
 
-## Getting Started
+## Level Completion Log
+Small notes on every level completed
 
-If you would like to use our boilerplate, you can easily get started by:
-
-- Install Node.js (we reccommend v16+ but should work with older versions too)
-- Clone the repository: `git clone https://github.com/GTBitsOfGood/spring23-dev-assessment.git`
-- Install the Dependencies: `npm install`
-- Start the Http server: `npm run start`
-- Navigate to `localhost:5000/`
-
-## Level 0: Setup
-
-- (0) Setup a NoSQL database
-- (1) Create a GET endpoint at `/api/health` to test whether your API server is functioning and healthy
-  - This can return a JSON with `{"healthy": true}`
+### Level 0: Setup
+- (0) Implemented
+- (1) Implemented
 
 ## Level 1: Easy
+For all the post requests you do not need to include an _id in the params. It is handled by my code.
 
-- (2) Create a POST endpoint at `/api/user` to create a user in the database based on information passed into the body
-- (3) Create a POST endpoint at `/api/animal` to create an animal in the database based on information passed into the body
-- (4) Create a POST endpoint at `/api/training` to create a training log in the database based on information passed into the body
+- (2) Implemented.
+  Does not need to be authenticated (otherwise how would you sign up).  
+  Note: No duplicate emails in database. Throws error if user's email already exists in database.  
+  Schema of sample query body (urlencoded):
+  ```
+  {
+    firstName: string
+    lastName: string
+    email: string (in email format)
+    password: string
+  }
+  ```
+}
+  
+- (3) Implemented. Needs JWT Auth.  
+  Note: Owner should not be specified. The owner is the account tied to the JWT (because owners should only care about their animals, not other users').  
+  Schema of sample body:
+  ```
+  {
+    name: string // animal's name
+    hoursTrained: number // total number of hours the animal has been trained for
+    dateOfBirth?: Date // animal's date of birth
+  }
+  ```
+  
+- (4) Implemented. Needs JWT Auth.  
+  Note: Owner should not be specified. The owner is the account tied to the JWT (because owners should only care about their animals, not other users').  
+  I also check if the current user is indeed the owner of the animal (as specified in another requirement).  
+  Schema of sample body:  
+  ```
+  {
+    date: Date // date of training log
+    description: string // description of training log
+    hours: number // number of hours the training log records
+    animal: ObjectId // animal this training log corresponds to
+  }
+  ```
 
-- Note these requests will have a similar request body and response statuses:
-  - Body: A JSON containing the user/animal/training log information for the user/animal/training log we want to create
-  - Response:
-    - **Status 200 (Success):** If the body contains all of the information and is able to create the user/animal/training log
-    - **Status 400:** If the body contains incorrect information
-    - **Status 500:** For any other errors that occur
+All reponses give the status codes requested in the original README.
 
 ## Level 2: Medium
 
-- (5) In the training log creation endpoint (3), we want to add in a check to ensure that the animal specified in the training log belongs to the user specified in the training log. Add in code to do this.
+- (5) Implemented.  
+  Owner is assumed to be current user (using the JWT)
 
-  - Response:
-    - **Status 400:** If the training log animal is not owned by specified user
+- (6), (7), (8): Implemented. Needs JWT Auth.
 
-- We want to add admin functionality to this backend API to allow the admins to view all the data in the database
-  - (6) Create a GET endpoint at `/api/admin/users` which will return all of the users in the database (not with their passwords)
-  - (7) Create a GET endpoint at `/api/admin/animals` which will return all of the animals in the database
-  - (8) Create a GET endpoint at `/api/admin/training` which will return all of the training logs in the database
-  - Response:
-    - **Status 200 (Success):** If we are able to retrieve the users/animals/training logs
-    - **Status 500**: For any other errors
-  - **Note:** These endpoints must implement pagination -- ideally using the document IDs or some other property that has natural ordering (i.e. take a look at approach 2 in this [article](https://www.codementor.io/@arpitbhayani/fast-and-efficient-pagination-in-mongodb-9095flbqr) if you are using MongoDB)
+Pagination using _id (like in method 2) implemented. By default first 20 results show.  
+You can navigate through the results using GET request parameters. Schema:
+```
+{
+  limit?: number //Number of results that should be returned
+  lastIndex?: string (MongoId) //index of the last element returned from previous request (index of element to jump to).
+}
+```
+So using `limit` and `lastIndex` you can optionally navigate through the results. `limit` is capped at 100.
 
 ## Level 3: Hard
 
-- (9) We want to add user authentication. In the user creation endpoint (1), add code that allows a password to be accepted. Encrypt this password using an encryption library (we reccommend using [bcrypt](https://www.npmjs.com/package/bcrypt)) and save it in the database under the user's password field
-- (10) Create a POST endpoint at `/api/user/login` that accepts an email and password and tests whether the password is valid for the given email.
-
-  - Response:
-    - **Status 200 (Success):** If the email/password combo is valid
-    - **Status 403**: If the email password combo is invalid
-
-- (11) We are going to make our application even more secure by adding JSON Web Token (JWT) functionality to secure our endpoints. Create a POST endpoint at `/api/user/verify` that issues a JSON Web Token to the user if they issue the correct email/password combination.
-  - Response:
-    - **Status 200 (Success):** If the email/password combo is valid + issue a JWT that includes the entirety of their profile information
-    - **Status 403**: If the email password combo is invalid
-- (12) In each of our endpoints, verify the JWT and only allow execution of the endpoint if the JWT is not expired and is valid
-- (13) Because the JWT includes information about the user making the request, refactor your endpoints to draw information from the JWT rather than the body of the request
-  - I.e. we no longer need to manually specifiy a user id when creating a service animal beacuse we can pull from the info encoded into the JWT.
+- (9) Implemented
+- (10) Implemented
+- (11) Implemented
+- (12) Implemented. Need verification for:
+  - `/api/animal`
+  - `/api/training`
+  - `/api/admin/users`
+  - `/api/admin/animals`
+  - `/api/admin/training`
+  - `/api/file/upload`
+  
+  For the other endpoints it does not make sense to request verification.
+  - `/` : obvious why
+  - `/healthy` : obvious why
+  - `api/user` : sign up endpoint
+  - `api/user/login` : obvious why
+  - `api/user/verify` : obvious why
+- (13) Implemented  
+  As stated above, whenever an owner is needed, it is inferred from the JWT.
 
 ## Level 4: Expert
 
-- (14) For the final part, we want to add file upload functionality. For this part, you are welcome to use any cloud file storage provider you would like. Create a POST endpoint at `/api/file/upload` to upload your file at.
-  - Body: Contains the _type of data_ (i.e. animal image, user image, or training log video) and the ID of the user/animal/training log this file belongs to
-  - Response:
-    - **Status 200 (Success)**: Successfully uploaded the video to the cloud storage
-    - **Status 500**: For any other errors
-  - Notes:
-    - The method you decide to transport the file (i.e. whether it be multipart, base64, etc.) is left up to you as a design decision
-    - Make sure to update the specific document in your database with the correct file reference upon upload completion
+- (14) Implemented  
+Using Google Cloud Storage and sent with multipart/form-data.
+
+A sample form-data request would like like this:
+```
+{
+  file: image or video //Image or Video to upload
+  type: 'UserProfile' | 'AnimalProfile' | 'TrainingVideo' //String specifiying what type of data we are uploading.
+  id: string (MongoId) //ID of the user/animal/training log this file belongs to
+}
+```
+As stated in the beginning, I have uploaded tokens with access to a temporary google account for easy setup for you. In a normal setting I would never upload such information to GitHub and would probably reside in a dotenv file.
+
+Please contact me if something does not work. I have implemented everything so if something does not work on your end I would like to fix it.

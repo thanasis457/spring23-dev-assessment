@@ -145,25 +145,6 @@ router.get(
   }
 );
 
-router.get(
-  "/api/admin/training",
-  Controllers.AuthMiddleware,
-  query("limit").optional().isNumeric().toInt(),
-  query("lastIndex").optional().isMongoId(),
-  (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(500).json(errors);
-    }
-    formatPagination(req.query);
-    Controllers.getTraining(req.query)
-      .then((training) => res.json(training))
-      .catch((err) => {
-        res.status(500).json({ error: err });
-      });
-  }
-);
-
 router.post(
   "/api/user/login",
   body("email").isEmail(),
