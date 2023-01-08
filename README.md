@@ -7,7 +7,7 @@ Hi and thanks for looking at my repo! I have tried to keep things simple and pre
 - I have provided a keys.json file with the credentials for an account to my GCP storage account. Again, I would never commit something like this to a public repo but for the sake of simplicity I am providing credentials to a temporary account with access to a free version of GCP Storage so that even if the key is exposed there won't be any actual harm.
 
 So you should just run:
-`npm i` and `npm run start`, assuming the `.env` file is pointing to your instance of MongoDB, and everything should running.
+`npm i` and `npm run start`, assuming the `.env` file is pointing to your instance of MongoDB, and everything should be running.
 ## Levels Completed
 
 I completed all Levels and have made minor adjustments/assumptions wherever I felt it made sense.  
@@ -23,7 +23,7 @@ If something doesn't work, please try using the versions above.
 ## Level Completion Log
 Small notes on every level completed
 
-### Level 0: Setup
+## Level 0: Setup
 - (0) Implemented
 - (1) Implemented
 
@@ -33,7 +33,7 @@ For all the post requests you do not need to include an _id in the params. It is
 - (2) Implemented.
   Does not need to be authenticated (otherwise how would you sign up).  
   Note: No duplicate emails in database. Throws error if user's email already exists in database.  
-  Schema of sample query body (urlencoded):
+  Schema of request's body (urlencoded):
   ```
   {
     firstName: string
@@ -46,7 +46,7 @@ For all the post requests you do not need to include an _id in the params. It is
   
 - (3) Implemented. Needs JWT Auth.  
   Note: Owner should not be specified. The owner is the account tied to the JWT (because owners should only care about their animals, not other users').  
-  Schema of sample body:
+  Schema of request's body:
   ```
   {
     name: string // animal's name
@@ -58,7 +58,7 @@ For all the post requests you do not need to include an _id in the params. It is
 - (4) Implemented. Needs JWT Auth.  
   Note: Owner should not be specified. The owner is the account tied to the JWT (because owners should only care about their animals, not other users').  
   I also check if the current user is indeed the owner of the animal (as specified in another requirement).  
-  Schema of sample body:  
+  Schema of request's body:  
   ```
   {
     date: Date // date of training log
@@ -78,7 +78,7 @@ All reponses give the status codes requested in the original README.
 - (6), (7), (8): Implemented. Needs JWT Auth.
 
 Pagination using _id (like in method 2) implemented. By default first 20 results show.  
-You can navigate through the results using GET request parameters. Schema:
+You can navigate through the results using GET request parameters. Schema of request's params:
 ```
 {
   limit?: number //Number of results that should be returned
@@ -112,7 +112,20 @@ So using `limit` and `lastIndex` you can optionally navigate through the results
 ## Level 4: Expert
 
 - (14) Implemented  
-Using Google Cloud Storage and sent with multipart/form-data.
+Using Google Cloud Storage and sent with multipart/form-data.  
+File size capped at 100mb.  
+Allowed image formats (for Users and Animals):
+  - "image/png"
+  - "image/jpeg"
+  - "image/jpg"
+  - "image/webp"
+
+  Allowed video formats (for TrainingLog):
+  - "video/mp4",
+  - "video/mpeg",
+  - "video/ogg",
+  - "video/webm",
+  - "video/quicktime",
 
 A sample form-data request would like like this:
 ```
