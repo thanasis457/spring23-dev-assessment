@@ -4,8 +4,6 @@ import Controllers from "../controllers/controllers.js";
 import { body, query, validationResult } from "express-validator";
 
 const router = express.Router();
-//Arbitrary secret. In normal seeting should be stored in environment variables for security
-export const secret = "K:Bfb;sbJU%^jhbd&(gdbhkdhkfv fiu&*7df8s9g";
 
 router.get("/", (req, res) => {
   res.json({ Hello: "World", Version: 2 });
@@ -199,7 +197,7 @@ router.post(
         //Email and Password match
         return Controllers.issueJWT(
           { _id: user._id, email: user.email },
-          secret
+          process.env.JWT_STRING
         );
       })
       .then((token) => {

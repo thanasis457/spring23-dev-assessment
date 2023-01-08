@@ -2,7 +2,6 @@
 import { ObjectID } from "bson";
 import dbo from "../mongo/connection.js";
 import bcrypt from "bcrypt";
-import { secret } from "../routes/assessment.route.js";
 import jwt from "jsonwebtoken";
 
 async function addUser(newUser) {
@@ -82,7 +81,7 @@ async function validateEmailPassword(email, password) {
   throw "Email and password do not match";
 }
 
-function issueJWT(payload = {}, secretJWT = secret) {
+function issueJWT(payload = {}, secretJWT = process.env.JWT_STRING) {
   const token = jwt.sign(payload, secretJWT, { expiresIn: "30 minutes" });
   return token;
 }
@@ -94,7 +93,7 @@ async function AuthMiddleware(req, res, next) {
     //Getting token from headers
     let token = req.headers.authorization.split(' ')[1];
     //Veirfying token
-    req.payload = jwt.verify(token, secret);
+    req.payload = jwt.verify(token, process.env.JWT_STRING);
     return next();
   } catch(err){
     console.log(err);
