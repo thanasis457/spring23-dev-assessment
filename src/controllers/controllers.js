@@ -31,7 +31,18 @@ async function addUser(newUser) {
   const saltRounds = 10;
   const hash = await bcrypt.hash(newUser.password, saltRounds);
   newUser.password = hash;
-  await dbo.getDb().collection("Users").insertOne(newUser);
+  const {upsertedCount} = await dbo.getDb().collection("Users").updateOne(
+    {
+      email: newUser.email,
+    },
+    {
+      $setOnInsert: newUser,
+    },
+    { upsert: true }
+  );
+  if(!upsertedCount){
+    throw("Could not add user. Email is probably used by other user.")
+  }
 }
 
 async function addAnimal(newAnimal) {
@@ -173,7 +184,10 @@ function uploadHandler(file, db_id, fileType) {
           const res = await dbo
             .getDb()
             .collection("Training")
-            .updateOne({ _id: db_id }, { $set: { trainingLogVideo: publicUrl } });
+            .updateOne(
+              { _id: db_id },
+              { $set: { trainingLogVideo: publicUrl } }
+            );
           if (!res.matchedCount) {
             throw new Error();
           }
