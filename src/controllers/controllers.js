@@ -2,6 +2,8 @@
 import { ObjectID } from "bson";
 import dbo from "../mongo/connection.js";
 import bcrypt from "bcrypt";
+import { secret } from "../routes/assessment.route.js";
+import jwt from "jsonwebtoken";
 
 async function addUser(newUser) {
   const saltRounds = 10;
@@ -68,19 +70,36 @@ async function getTraining({
 }
 
 async function validateEmailPassword(email, password) {
-  const user = await dbo
-    .getDb()
-    .collection("Users")
-    .findOne({ email: email });
-    
-  if(!user) throw "Email not matched to any user";
+  const user = await dbo.getDb().collection("Users").findOne({ email: email });
+
+  if (!user) throw "Email not matched to any user";
   console.log(user);
   const res = await bcrypt.compare(password, user.password);
   console.log(res);
   if (res) {
-    return;
+    return user;
   }
   throw "Email and password do not match";
+}
+
+function issueJWT(payload = {}, secretJWT = secret) {
+  const token = jwt.sign(payload, secretJWT, { expiresIn: "30 minutes" });
+  return token;
+}
+
+async function AuthMiddleware(req, res, next) {
+  console.log(req.headers);
+  
+  try{
+    //Getting token from headers
+    let token = req.headers.authorization.split(' ')[1];
+    //Veirfying token
+    req.payload = jwt.verify(token, secret);
+    return next();
+  } catch(err){
+    console.log(err);
+    return res.sendStatus(401);
+  }
 }
 
 export default {
@@ -91,4 +110,6 @@ export default {
   getAnimals,
   getTraining,
   validateEmailPassword,
+  issueJWT,
+  AuthMiddleware,
 };
