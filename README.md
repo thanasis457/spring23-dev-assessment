@@ -23,6 +23,13 @@ If something doesn't work, please try using the versions above.
 ## Level Completion Log
 Small notes on every level completed
 
+Small note: For authenticating yourself using the JWT, use the "Bearer Token" option in Postman or use the format:
+```
+{
+  'Authorization': 'Bearer --token here--'
+}
+  ```
+
 ## Level 0: Setup
 - (0) Implemented
 - (1) Implemented
@@ -51,7 +58,7 @@ For all the post requests you do not need to include an _id in the params. It is
   {
     name: string // animal's name
     hoursTrained: number // total number of hours the animal has been trained for
-    dateOfBirth?: Date // animal's date of birth
+    dateOfBirth?: Date // animal's date of birth in the format: YYYY-MM-DD
   }
   ```
   
@@ -112,7 +119,7 @@ So using `limit` and `lastIndex` you can optionally navigate through the results
 ## Level 4: Expert
 
 - (14) Implemented  
-Using Google Cloud Storage and sent with multipart/form-data.  
+Using Google Cloud Storage and sent with multipart/form-data. When the file uploaded, the corresponding user/animal/training log is also updated in the database with a link to the file.  
 File size capped at 100mb.  
 Allowed image formats (for Users and Animals):
   - "image/png"

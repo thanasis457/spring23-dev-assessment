@@ -27,7 +27,7 @@ router.post(
     }
     Controllers.addUser(req.body)
       .then(() => {
-        res.status(200).json();
+        res.status(200).json({ Success: "Added user" });
       })
       .catch((err) => {
         console.log(err);
@@ -48,12 +48,12 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    Controllers.addAnimal({ owner: ObjectId(req.payload._id), ...req.body })
+    Controllers.addAnimal({ ...req.body, owner: ObjectId(req.payload._id) })
       .then(() => {
-        res.status(200).json();
+        res.status(200).json({ Success: "Added animal" });
       })
       .catch((err) => {
-        res.status(500).json();
+        res.status(500).json({ error: err });
       });
   }
 );
@@ -73,15 +73,18 @@ router.post(
       return res.status(400).json(errors);
     }
     Controllers.addTraining({
-      user: ObjectId(req.payload._id),
       ...req.body,
+      user: ObjectId(req.payload._id),
       animal: ObjectId(req.body.animal),
     })
       .then(() => {
-        res.status(200).send();
+        res.status(200).send({ Success: "Added training log" });
       })
       .catch((err) => {
-        if (err === 400) res.status(400).json();
+        if (err === 400)
+          res
+            .status(400)
+            .json({ error: "Current user might not be the animal owner." });
         else res.status(500).json({ error: err });
       });
   }
