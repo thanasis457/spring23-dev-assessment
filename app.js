@@ -11,7 +11,6 @@ app.use(cors({ origin: true }));
 app.use(express.urlencoded());
 app.use(express.json());
 
-
 app.use('/', router);
 
 app.listen(APP_PORT, () => {
